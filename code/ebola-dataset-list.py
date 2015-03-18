@@ -1,4 +1,4 @@
-# Script to query HDX for a list of datasets 
+# Script to query HDX for a list of datasets
 # and return CSV table.
 
 import sys
@@ -13,7 +13,7 @@ if __name__ == '__main__':
 	    usage = '''
 	    Please provide a CSV path.
 
-	    python code/ebola-dataset-list.py {path/to/file.csv} 
+	    python code/ebola-dataset-list.py {path/to/file.csv}
 
 	    e.g.
 
@@ -51,10 +51,10 @@ def getDatasetListforTag(tag = None, l = None, verbose = False):
 		print "%s : processing %s records." % (m, n)
 
         f = csv.writer(open(l, "wb+"))
-        
+
         # Write headers.
         f.writerow(["title", "name", "owner_org", "maintainer", "revision_timestamp", "id", "num_resources", "num_tags", "num_extras"])
-        
+
         # Write records.
         record_counter = 0
         for dataset in d["result"]["packages"]:
@@ -97,7 +97,7 @@ def getDatasetListforTag(tag = None, l = None, verbose = False):
 	print "----------------------------------"
 	print "************* %s ***************" % (color("DONE", "blue", attrs=['blink','bold']))
 	print "----------------------------------"
-	
+
 
 # Running the function.
 getDatasetListforTsg("ebola", csv_path, verbose = False)
