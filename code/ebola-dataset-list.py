@@ -5,7 +5,9 @@
 import sys
 import csv
 import yajl as json
-import requests as r
+import requests
+import unicodecsv
+
 from termcolor import colored as color
 
 ENCODING = 'utf-8'
@@ -28,74 +30,53 @@ if __name__ == '__main__':
 	csv_path = sys.argv[1]
 
 # Get list of datasets form HDX.
-def getDatasetListforTag(tag = None, l = None, verbose = False):
+def getDatasetListforTag(tag=None, csv_path=None, verbose=False):
 
 	if tag is None:
 		print "Please provide tag."
 		return
 
-	if l is None:
+	if csv_path is None:
 		print "I need a CSV path, e.g. data/data.csv"
 		return
 
 	print "----------------------------------"
 
-	u = "https://data.hdx.rwlabs.org/api/action/tag_show?id=" + tag
-	d = r.get(u).json()
+	url = "https://data.hdx.rwlabs.org/api/action/tag_show?id=%s" % tag
+	r = requests.get(url)
+	json_data = r.json()
 
-	if d["success"] is False:
-		m = color("ERROR", "red", attrs=['bold'])
-		print "%s : %s" % (m, d["error"]["message"])
-		return
-
-	if d["success"] is True:
-		m = color("SUCCESS", "green", attrs=['bold'])
-		n = color(len(d["result"]["packages"]), "blue", attrs=['dark'])
+	if json_data['success'] is True:
+		records = []
+		m = color('SUCCESS', 'green', attrs=['bold'])
+		n = color(len(json_data['result']['packages']), 'yellow', attrs=['dark'])
 		print "%s : processing %s records." % (m, n)
 
-		f = csv.writer(open(l, "wb+"))
+		headers = [
+			'title', 'name', 'owner_org', 'maintainer', 'maintainer_email',
+			'revision_timestamp', 'id', 'num_resources', 'num_tags',
+			'num_extras'
+		]
 
-		# Write headers.
-		f.writerow(["title", "name", "owner_org", "maintainer", "revision_timestamp", "id", "num_resources", "num_tags", "num_extras"])
+		for dataset in json_data['result']['packages']:
+			record = {k: v for k, v in dataset.iteritems() if k in set(headers)}
+			record['num_extras'] = len(dataset['extras'])
+			records.append(record)
 
-		# Write records.
-		record_counter = 0
-		for dataset in d["result"]["packages"]:
-			record_counter += 1
-			try:
-				f.writerow([
-					dataset["title"],
-					dataset["name"],
-					dataset["owner_org"],
-					dataset["maintainer"],
-					dataset["maintainer_email"],
-					dataset["revision_timestamp"],
-					dataset["id"],
-					dataset["num_resources"],
-					dataset["num_tags"],
-					len(dataset["extras"])
-					])
+		with open(csv_path, 'wb') as f:
+			f.write(u'\ufeff'.encode(ENCODING))  # BOM for Windows
+			w = unicodecsv.DictWriter(f, headers, encoding=ENCODING)
 
-			except Exception as e:
-				err = color("ERROR", "red", attrs=['bold'])
-				rec = color(record_counter, "yellow", attrs=['bold'])
-				print "%s : record %s failed to write." % (err, rec)
-				f.writerow([
-					"NA",
-					"NA",
-					"NA",
-					"NA",
-					"NA",
-					"NA",
-					"NA",
-					"NA",
-					"NA",
-					"NA"
-					])
+			# Write headers
+			w.writer.writerow(headers)
 
-				# Printing more detailed error messages.
-				if verbose is True:
-					print e
+			# Write records
+			w.writerows(records)
+	else:
+		m = color("ERROR", "red", attrs=['bold'])
+		print "%s : %s" % (m, json_data["error"]["message"])
+		return
+
 
 	print "----------------------------------"
 	print "************* %s ***************" % (color("DONE", "blue", attrs=['blink','bold']))
