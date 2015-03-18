@@ -13,17 +13,17 @@ ENCODING = 'utf-8'
 # Fetch arguments from command line.
 if __name__ == '__main__':
 	if len(sys.argv) <= 1:
-	    usage = '''
-	    Please provide a CSV path.
+		usage = '''
+		Please provide a CSV path.
 
-	    python code/ebola-dataset-list.py {path/to/file.csv}
+		python code/ebola-dataset-list.py {path/to/file.csv}
 
-	    e.g.
+		e.g.
 
-	    python code/ebola-dataset-list.py data/data.csv
-	    '''
-	    print(usage)
-	    sys.exit(1)
+		python code/ebola-dataset-list.py data/data.csv
+		'''
+		print(usage)
+		sys.exit(1)
 
 	csv_path = sys.argv[1]
 
@@ -53,45 +53,45 @@ def getDatasetListforTag(tag = None, l = None, verbose = False):
 		n = color(len(d["result"]["packages"]), "blue", attrs=['dark'])
 		print "%s : processing %s records." % (m, n)
 
-        f = csv.writer(open(l, "wb+"))
+		f = csv.writer(open(l, "wb+"))
 
-        # Write headers.
-        f.writerow(["title", "name", "owner_org", "maintainer", "revision_timestamp", "id", "num_resources", "num_tags", "num_extras"])
+		# Write headers.
+		f.writerow(["title", "name", "owner_org", "maintainer", "revision_timestamp", "id", "num_resources", "num_tags", "num_extras"])
 
-        # Write records.
-        record_counter = 0
-        for dataset in d["result"]["packages"]:
+		# Write records.
+		record_counter = 0
+		for dataset in d["result"]["packages"]:
 			record_counter += 1
 			try:
-			    f.writerow([
-			    	dataset["title"],
-			    	dataset["name"],
-			    	dataset["owner_org"],
-			    	dataset["maintainer"],
-			    	dataset["maintainer_email"],
-			    	dataset["revision_timestamp"],
-			    	dataset["id"],
-			    	dataset["num_resources"],
-			    	dataset["num_tags"],
-			    	len(dataset["extras"])
-			    	])
+				f.writerow([
+					dataset["title"],
+					dataset["name"],
+					dataset["owner_org"],
+					dataset["maintainer"],
+					dataset["maintainer_email"],
+					dataset["revision_timestamp"],
+					dataset["id"],
+					dataset["num_resources"],
+					dataset["num_tags"],
+					len(dataset["extras"])
+					])
 
 			except Exception as e:
 				err = color("ERROR", "red", attrs=['bold'])
 				rec = color(record_counter, "yellow", attrs=['bold'])
 				print "%s : record %s failed to write." % (err, rec)
 				f.writerow([
-			    	"NA",
-			    	"NA",
-			    	"NA",
-			    	"NA",
-			    	"NA",
-			    	"NA",
-			    	"NA",
-			    	"NA",
-			    	"NA",
-			    	"NA"
-			    	])
+					"NA",
+					"NA",
+					"NA",
+					"NA",
+					"NA",
+					"NA",
+					"NA",
+					"NA",
+					"NA",
+					"NA"
+					])
 
 				# Printing more detailed error messages.
 				if verbose is True:
