@@ -103,4 +103,4 @@ def getDatasetListforTag(tag = None, l = None, verbose = False):
 
 
 # Running the function.
-getDatasetListforTsg("ebola", csv_path, verbose = False)
+getDatasetListforTag("ebola", csv_path, verbose = False)
