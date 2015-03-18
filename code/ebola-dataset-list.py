@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Script to query HDX for a list of datasets
 # and return CSV table.
 
@@ -6,6 +7,8 @@ import csv
 import yajl as json
 import requests as r
 from termcolor import colored as color
+
+ENCODING = 'utf-8'
 
 # Fetch arguments from command line.
 if __name__ == '__main__':
